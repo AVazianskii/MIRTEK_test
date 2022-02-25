@@ -90,6 +90,7 @@ namespace MIRTEK_test
                 Requested_auto_park.Clear();
                 Result_byte_answer.Clear();                     // Очищаем ответ на запрос
                 data_to_send = Result_byte_answer.ToArray();    // очищаем массив байтов, отправляемый клиенту
+                first_start = true;
                 // закрываем сокет
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
