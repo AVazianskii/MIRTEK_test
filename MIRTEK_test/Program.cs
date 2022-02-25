@@ -22,17 +22,9 @@ namespace MIRTEK_test
             Auto_park.Add(Ford);
             Auto_park.Add(Opel);
 
-            List <byte> Result_byte_answer = new List<byte>();
+            List <byte> Result_byte_answer = new List<byte>(); // сюда будет складываться байтовая последовательность 
 
-            Handler_template Head = new Head_title_handler();
-            Handler_template Number = new Number_of_elements_handler();
-            Handler_template Model_name = new Model_name_handler();
-            Handler_template Production_Year = new Production_year_handler();
-            Handler_template Engine_Volume = new Engine_volume_handler();
-            Handler_template Number_of_Doors = new Number_of_doors_handler();
-            Handler_template Tail = new Tail_handler();
-
-            Head.SetNext(Number).SetNext(Model_name).SetNext(Production_Year).SetNext(Engine_Volume).SetNext(Number_of_Doors);
+            Chain_of_responcibility.Setup_chain();
 
             // устанавливаем порт и адрес, через которое осуществляется подключение
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
@@ -74,25 +66,24 @@ namespace MIRTEK_test
                 //
                 // - здесь запуск цепочки обработчиков с выводом окончательного результата в Result_byte_answer
                 // - который затем превращается в data_to_send через Result_byte_answer.ToArray()
-                //Head.Handle(received_data, Requested_auto_park, Result_byte_answer);
-                //Header.Handle(received_data, Requested_auto_park, Result_byte_answer);
+
                 foreach (Car_template Car in Requested_auto_park)
                 {
                     if (first_start)
                     {
-                        Head.Handle(received_data, Requested_auto_park, Car, Result_byte_answer);
+                        Chain_of_responcibility.Run_chain_from_head(received_data, Requested_auto_park, Car, Result_byte_answer);
                         first_start = false;
                     }
                     else 
                     {
-                        Model_name.Handle(received_data, Requested_auto_park, Car, Result_byte_answer);
+                        Chain_of_responcibility.Run_chain_from_main_body(received_data, Requested_auto_park, Car, Result_byte_answer);
                     }
                     if (Requested_auto_park.IndexOf(Car) == (Requested_auto_park.Capacity - 2))
                     {
-                        Tail.Handle(received_data, Requested_auto_park, Car, Result_byte_answer);
+                        Chain_of_responcibility.Run_chain_from_tail(received_data, Requested_auto_park, Car, Result_byte_answer);
                     }
                 }
-                //Last_element.Handle(received_data, Requested_auto_park, Result_byte_answer);
+                
                 // отправляем ответ
                 byte[] data_to_send = Result_byte_answer.ToArray();
                 handler.Send(data_to_send);
